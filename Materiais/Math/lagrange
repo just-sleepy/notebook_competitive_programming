@@ -1,0 +1,45 @@
+template<int p> struct modint {
+    int x; modint() : x(0) {}
+    modint(ll a) : x(a) {
+        if (!(-p < x && x < p)) x %= p;
+        if (x < 0) x += p; }
+    using m = modint;
+#define DEF(n, b) m& n(const m& a) { b; return *this; }
+    DEF(operator+=, { x += a.x; if (x >= p) { x -= p; } })
+        DEF(operator-=, { x -= a.x; if (x < 0) { x += p; } })
+        DEF(operator*=, { x = x * ll(a.x) % p; })
+        bool operator==(const m& a) { return x == a.x; }
+    bool operator!=(const m& a) { return x != a.x; }
+    friend m operator+(m a, m b) { return a += b; }
+    friend m operator-(m a, m b) { return a -= b; }
+    friend m operator*(m a, m b) { return a *= b; }
+};
+ 
+const int P = 1e9+7;
+using mint = modint<P>;
+ 
+mint binary_pow(mint a, ll e) {
+    if (e == 0) { return 1; }
+    mint res = binary_pow(a, e/2);
+    res *= res;
+    if (e % 2) { res *= a; }
+    return res;
+}
+ 
+mint inv(mint x) {
+    return binary_pow(x, P-2);
+}
+ 
+mint evaluate(vector<mint> ys, int n, mint x) {
+    mint li = 1;
+    int i = 0;
+    for (int j = 1; j <= n; j++) {
+        li *= (x - j) * inv(i - j);
+    }
+    mint ans = ys[0] * li;
+    for (int i = 1; i <= n; i++) {
+        li *= (x - (i-1)) * inv(x - i);
+        li *= ((i - 1) - n) * inv(i);
+        ans += ys[i] * li;
+    }
+    return ans
